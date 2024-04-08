@@ -16,7 +16,7 @@ export class SenhasService {
 
   gerarSenhaGeral() {
     this.somaGeral();
-    this.ultSenha = 'G';
+    this.ultSenha = 'N';
     this.salvarSenhaNoLocalStorage('senhaGeral', this.senhasGeral, this.ultSenha);
   }
 
