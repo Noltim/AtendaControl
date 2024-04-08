@@ -8,12 +8,8 @@ import { SenhasService } from '../services/senhas.service';
 })
 export class Tab4Page {
 
-  ultimaChamda: string = '';
+  ultimasSenhas: string = '';
 
   constructor(public senhasService: SenhasService) {}
-
-  carregarSenhasSalvas() {
-    this.ultimaChamda =  localStorage.getItem('ultimaChamda') || 'Sistema iniciando...';
-  }
 
 }

@@ -6,14 +6,10 @@ import {SenhasService} from '../services/senhas.service';
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss']
 })
-export class Tab1Page implements OnInit {
+export class Tab1Page {
 
 
   constructor(private senhasService: SenhasService) {
-  }
-
-  ngOnInit() {
-    this.listarItensLocalStorage();
   }
 
   gerarSenhaGeral() {
@@ -26,9 +22,5 @@ export class Tab1Page implements OnInit {
 
   gerarSenhaExame() {
     this.senhasService.gerarSenhaExame();
-  }
-
-  listarItensLocalStorage() {
-    this.senhasService.listarItensLocalStorage();
   }
 }
