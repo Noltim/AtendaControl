@@ -12,15 +12,9 @@ export class Tab1Page {
   constructor(private senhasService: SenhasService) {
   }
 
-  gerarSenhaGeral() {
-    this.senhasService.gerarSenhaGeral();
-  }
 
-  gerarSenhaPrior() {
-    this.senhasService.gerarSenhaPrior();
-  }
 
-  gerarSenhaExame() {
-    this.senhasService.gerarSenhaExame();
+  gerarSenha(prioridade: string) {
+    this.senhasService.gerarSenha(prioridade);
   }
 }

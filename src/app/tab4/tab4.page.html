@@ -1,13 +1,13 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title class="ion-text-center"> Painel de chamada </ion-title>
+    <ion-title class="ion-text-center"> Painel de chamada</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title class="ion-text-center" style="font-size: 30px"> Painel </ion-title>
+      <ion-title class="ion-text-center" style="font-size: 30px"> Painel</ion-title>
     </ion-toolbar>
   </ion-header>
 
@@ -17,43 +17,24 @@
         <ion-item>
           <ion-thumbnail slot="start">
           </ion-thumbnail>
-          <ion-label style="font-size: 25px" > Senha </ion-label>
+          <ion-label style="font-size: 25px"> Últimas 5 Senhas Chamadas</ion-label>
         </ion-item>
-        <ion-item>
+
+        <ion-item *ngFor="let senha of senhasService.ultimasSenhasAtendidas(); let i = index">
           <ion-thumbnail slot="start">
           </ion-thumbnail>
-            <!-- consumir metodo que recebe o paremetro(numero) para exbir a posição atual da fila -->
-          <ion-label id="senha"> {{ senhasService.mostrarSenha() }}</ion-label>
-          <!-- consumir guichê -->
+          <ion-label id="senha{{i}}">
+            <!--            Aqui abaixo vai mudar pra dataHoraAtendimento-->
+            {{ senha.dataHoraEmissao }}
+          </ion-label>
+          <ion-label id="senha{{i}}">
+            {{ senha.prioridade }} -{{ senha.sequencial }}
+          </ion-label>
+          <ion-label id="senha{{i}}">
+            {{ senha.guiche }}
+          </ion-label>
         </ion-item>
-        <ion-item>
-          <ion-thumbnail slot="start">
-          </ion-thumbnail>
-              <!-- consumir metodo que recebe o paremetro(numero) para exbir a posição atual da fila -->
-          <ion-label id="senha"> {{ senhasService.mostrarSenha() }}</ion-label>
-          <!-- consumir guichê -->
-        </ion-item>
-        <ion-item>
-          <ion-thumbnail slot="start">
-          </ion-thumbnail>
-              <!-- consumir metodo que recebe o paremetro(numero) para exbir a posição atual da fila -->
-          <ion-label id="senha"> {{ senhasService.mostrarSenha() }}</ion-label>
-          <!-- consumir guichê -->
-        </ion-item>
-        <ion-item lines="none">
-          <ion-thumbnail slot="start">
-          </ion-thumbnail>
-              <!-- consumir metodo que recebe o paremetro(numero) para exbir a posição atual da fila -->
-          <ion-label id="senha"> {{ senhasService.mostrarSenha() }}</ion-label>
-          <!-- consumir guichê -->
-        </ion-item>
-        <ion-item lines="none">
-          <ion-thumbnail slot="start">
-          </ion-thumbnail>
-              <!-- consumir metodo que recebe o paremetro(numero) para exbir a posição atual da fila -->
-          <ion-label id="senha"> {{ senhasService.mostrarSenha() }}</ion-label>
-          <!-- consumir guichê -->
-        </ion-item>
+
       </ion-list>
     </ion-card-content>
   </ion-card>
