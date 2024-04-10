@@ -18,6 +18,7 @@ export class SenhasService {
   public ultimaChamada: string = localStorage.getItem('ultimaChamada') !== null ? localStorage.getItem('ultimaChamada')! : '';
   public senhasTotal: number = this.senhasGeral + this.senhasPrior + this.senhasExame;
   public ultSenha: string = "SG";
+  public senhasChamdas: String[] = [];
 
   // TODO Ao  chamar no guiche usar a seguinte logica : [SP] -> [SE|SG] -> [SP] -> [SE|SG]
   // TODO Criar fila juntando atendimento, guichê e status do atendimento.
@@ -29,7 +30,9 @@ export class SenhasService {
   }
 
   verificarHorario(): boolean {
-    return (new Date().getHours() >= 7 && (new Date().getHours() <= 16 || new Date().getMinutes() <= 45));
+    //DESCOMENTAR PARA ATIVAR VERIFICAÇÃO DE TEMPO ( REQUISITO)
+  //  return (new Date().getHours() >= 7 && (new Date().getHours() <= 16 || new Date().getMinutes() <= 45));
+  return true
   }
 
   gerarSenha(prioridade: string) {
@@ -44,10 +47,16 @@ export class SenhasService {
           const senha = new Senhas();
           senha.dataHoraEmissao = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
           senha.prioridade = Prioridades.SG;
-          senha.sequencial = this.senhasGeral;
+          senha.sequencial = this.senhasGeral.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+          senha.numeracaoSenha =
+          new Date().getFullYear().toString().slice(-2) +
+          (new Date().getMonth() + 1).toString().padStart(2, '0') +
+          new Date().getDate().toString().padStart(2, '0') +
+          this.ultSenha +
+          senha.sequencial;
           fila.push(senha);
           localStorage.setItem("fila", JSON.stringify(fila));
-          this.salvarSenhaNoLocalStorage('senhaGeral', this.senhasGeral, this.ultSenha);
+          this.salvarSenhaNoLocalStorage('senhaGeral', senha.numeracaoSenha);
           break;
         }
 
@@ -57,10 +66,16 @@ export class SenhasService {
           const senha = new Senhas();
           senha.dataHoraEmissao = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
           senha.prioridade = Prioridades.SP;
-          senha.sequencial = this.senhasPrior;
+          senha.sequencial = this.senhasPrior.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+          senha.numeracaoSenha =
+          new Date().getFullYear().toString().slice(-2) +
+          (new Date().getMonth() + 1).toString().padStart(2, '0') +
+          new Date().getDate().toString().padStart(2, '0') +
+          this.ultSenha +
+          senha.sequencial;
           fila.push(senha);
           localStorage.setItem("fila", JSON.stringify(fila));
-          this.salvarSenhaNoLocalStorage('senhaPrioritaria', this.senhasPrior, this.ultSenha);
+          this.salvarSenhaNoLocalStorage('senhaPrioritaria', senha.numeracaoSenha);
           break;
         }
 
@@ -70,10 +85,16 @@ export class SenhasService {
           const senha = new Senhas();
           senha.dataHoraEmissao = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
           senha.prioridade = Prioridades.SE;
-          senha.sequencial = this.senhasExame;
+          senha.sequencial = this.senhasExame.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+          senha.numeracaoSenha =
+          new Date().getFullYear().toString().slice(-2) +
+          (new Date().getMonth() + 1).toString().padStart(2, '0') +
+          new Date().getDate().toString().padStart(2, '0') +
+          this.ultSenha +
+          senha.sequencial;
           fila.push(senha);
           localStorage.setItem("fila", JSON.stringify(fila));
-          this.salvarSenhaNoLocalStorage('senhaExame', this.senhasExame, this.ultSenha);
+          this.salvarSenhaNoLocalStorage('senhaExame', senha.numeracaoSenha);
           break;
         }
       }
@@ -96,8 +117,11 @@ export class SenhasService {
         break;
       }
     }
+    console.log(filaUltimosAtendidos) //FICANDO VAZIO
     return filaUltimosAtendidos;
   }
+
+
 
   mostrarSenha() {
     if (this.ultSenha === "SG") {
@@ -124,8 +148,8 @@ export class SenhasService {
     this.senhasTotal++;
   }
 
-  private salvarSenhaNoLocalStorage(chave: string, valor: number, ultSenha: string) {
-    localStorage.setItem(chave, valor.toString())
-    localStorage.setItem('ultimaChamada', ultSenha + valor.toLocaleString('pt-br', {minimumIntegerDigits: 3}))
+  private salvarSenhaNoLocalStorage(chave: string, ultSenha: string) {
+    localStorage.setItem(chave, ultSenha)
+    localStorage.setItem('ultimaChamada', ultSenha)
   }
 }
