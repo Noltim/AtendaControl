@@ -4,6 +4,7 @@ import {Prioridades} from "../models/prioridades";
 import {formatDate} from '@angular/common';
 import {registerLocaleData} from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import { BehaviorSubject } from 'rxjs';
 
 registerLocaleData(localePt);
 
@@ -171,6 +172,14 @@ export class SenhasService {
     localStorage.setItem('ultimaGerada', ultSenha)
     this.senhasGeradas.push(ultSenha);
     localStorage.setItem('senhasGeradas', JSON.stringify(this.senhasGeradas))
+    this.atualizarSenhasGeradas(this.senhasGeradas);
 
   }
+
+    public senhasGeradasSubject: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+    atualizarSenhasGeradas(senhas: string[]) {
+      this.senhasGeradas = senhas;
+      this.senhasGeradasSubject.next(senhas);
+    }
 }
