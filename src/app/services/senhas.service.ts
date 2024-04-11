@@ -25,8 +25,24 @@ export class SenhasService {
   //TODO 2° Criar tela para o responsável por acionar o sistema para chamar o próximo na fila e efetuar o seu atendimento ao cliente em seu guichê
   // TODO 3° Ao  chamar no guiche usar a seguinte logica : [SP] -> [SE|SG] -> [SP] -> [SE|SG]
   // TODO 4° Status do guiche: Em atendimento ou vazio.
-  //(Requisito TODO 4°) TODO 5º Criar logica para finalizar atendimento enviar para fila com status: atendido ou não compareceu
-  //(REQUISITO TODO 1° para começar) TODO 5° Criar relatorio com base nas filas criadas
+  // TODO 5 ° Tela para exibir o número a ser chamado, onde também é informado para qual guichê se dirigir (logica do item 4 aplicada -> Em atendimento ou Aguardando)
+  //(Requisito TODO 4°) TODO 6º Criar logica para finalizar atendimento enviar para fila com status: atendido ou não compareceu
+  //(REQUISITO TODO 1° para começar) TODO 7° Criar relatorio com base nas filas criadas
+  //TODO logica do horario de atendimento das 7 as 17h
+  //TODO no painel deverá constar as ultimas 5 senhas chamadas
+
+//   O cliente também pede que seja emitido relatório diário
+// e mensal, contendo:
+// • Quantitativo geral das senhas emitidas.
+// • Quantitativo geral das senhas atendidas.
+// • Quantitativo das senhas emitidas, por prioridade.
+// • Quantitativo das senhas atendidas, por prioridade.
+// • Relatório detalhado das senhas contendo, numeração,
+// tipo de senha, data e hora da emissão e data e hora do
+// atendimento, guichê responsável pelo SA, caso não tenha
+// sido atendida estes últimos campos ficarão em branco.
+// • Relatório do TM, que devido à variação aleatória no
+// atendimento poderá mudar
 
   constructor() {
   }
