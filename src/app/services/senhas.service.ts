@@ -15,24 +15,26 @@ export class SenhasService {
   public senhasGeral: number = localStorage.getItem('senhaGeral') !== null ? parseInt(localStorage.getItem('senhaGeral')!) : 0;
   public senhasPrior: number = localStorage.getItem('senhaPrioritaria') !== null ? parseInt(localStorage.getItem('senhaPrioritaria')!) : 0;
   public senhasExame: number = localStorage.getItem('senhaExame') !== null ? parseInt(localStorage.getItem('senhaExame')!) : 0;
-  public ultimaChamada: string = localStorage.getItem('ultimaChamada') !== null ? localStorage.getItem('ultimaChamada')! : '';
+  public ultimaGerada: string = localStorage.getItem('ultimaGerada') !== null ? localStorage.getItem('ultimaGerada')! : '';
   public senhasTotal: number = this.senhasGeral + this.senhasPrior + this.senhasExame;
   public ultSenha: string = "SG";
-  public senhasChamdas: String[] = [];
+  public senhasGeradas: string[] = localStorage.getItem("senhasGeradas") !== null ? JSON.parse(localStorage.getItem("senhasGeradas")!) : [];
 
-  // TODO Ao  chamar no guiche usar a seguinte logica : [SP] -> [SE|SG] -> [SP] -> [SE|SG]
-  // TODO Criar fila juntando atendimento, guichê e status do atendimento.
-  // TODO Status do guiche: Em atendimento ou vazio.
-  // TODO Criar logica para finalizar atendimento enviar para fila com status: atendido ou não compareceu
-  // TODO Criar relatorio com base nas filas criadas
+
+  //(FEITO) TODO 1° Criar fila juntando atendimento, guichê e status do atendimento(Atendido(true) ou não atendido(false)). ( FEITO PS N DELETAR AQUI )
+  //TODO 2° Criar tela para o responsável por acionar o sistema para chamar o próximo na fila e efetuar o seu atendimento ao cliente em seu guichê
+  // TODO 3° Ao  chamar no guiche usar a seguinte logica : [SP] -> [SE|SG] -> [SP] -> [SE|SG]
+  // TODO 4° Status do guiche: Em atendimento ou vazio.
+  //(Requisito TODO 4°) TODO 5º Criar logica para finalizar atendimento enviar para fila com status: atendido ou não compareceu
+  //(REQUISITO TODO 1° para começar) TODO 5° Criar relatorio com base nas filas criadas
 
   constructor() {
   }
 
   verificarHorario(): boolean {
     //DESCOMENTAR PARA ATIVAR VERIFICAÇÃO DE TEMPO ( REQUISITO)
-  //  return (new Date().getHours() >= 7 && (new Date().getHours() <= 16 || new Date().getMinutes() <= 45));
-  return true
+    //return (new Date().getHours() >= 7 && (new Date().getHours() <= 16 || new Date().getMinutes() <= 45));
+    return true
   }
 
   gerarSenha(prioridade: string) {
@@ -150,6 +152,9 @@ export class SenhasService {
 
   private salvarSenhaNoLocalStorage(chave: string, ultSenha: string) {
     localStorage.setItem(chave, ultSenha)
-    localStorage.setItem('ultimaChamada', ultSenha)
+    localStorage.setItem('ultimaGerada', ultSenha)
+    this.senhasGeradas.push(ultSenha);
+    localStorage.setItem('senhasGeradas', JSON.stringify(this.senhasGeradas))
+
   }
 }
