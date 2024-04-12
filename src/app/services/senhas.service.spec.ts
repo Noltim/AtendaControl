@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SenhasService } from './senhas.service';
+import { SenhasService } from './SenhasService';
 
 describe('SenhasService', () => {
   let service: SenhasService;

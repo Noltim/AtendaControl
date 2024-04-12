@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {Senhas} from "../models/senhas";
-import {Prioridades} from "../models/prioridades";
-import {formatDate} from '@angular/common';
-import {registerLocaleData} from '@angular/common';
+import { Injectable } from '@angular/core';
+import { Senhas } from "../models/senhas";
+import { Prioridades } from "../models/prioridades";
+import { formatDate } from '@angular/common';
+import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { BehaviorSubject } from 'rxjs';
 
@@ -21,6 +21,14 @@ export class SenhasService {
   public ultSenha: string = "SG";
   public senhasGeradas: string[] = localStorage.getItem("senhasGeradas") !== null ? JSON.parse(localStorage.getItem("senhasGeradas")!) : [];
 
+  // Variáveis para contar as senhas atendidas por tipo
+  public senhasAtendidasTotal: number = 0;
+  public senhasAtendidasGeral: number = 0;
+  public senhasAtendidasPrior: number = 0;
+  public senhasAtendidasExame: number = 0;
+
+  public ultimasSenhasChamadas: { [key: string]: string } = {}; // Variável para armazenar a última senha chamada por cada atendente
+
 
   //(FEITO) TODO 1° Criar fila juntando atendimento, guichê e status do atendimento(Atendido(true) ou não atendido(false)). ( FEITO PS N DELETAR AQUI )
   //TODO 2° Criar tela para o responsável por acionar o sistema para chamar o próximo na fila e efetuar o seu atendimento ao cliente em seu guichê
@@ -32,18 +40,18 @@ export class SenhasService {
   //TODO logica do horario de atendimento das 7 as 17h
   //TODO no painel deverá constar as ultimas 5 senhas chamadas
 
-//   O cliente também pede que seja emitido relatório diário
-// e mensal, contendo:
-// • Quantitativo geral das senhas emitidas.
-// • Quantitativo geral das senhas atendidas.
-// • Quantitativo das senhas emitidas, por prioridade.
-// • Quantitativo das senhas atendidas, por prioridade.
-// • Relatório detalhado das senhas contendo, numeração,
-// tipo de senha, data e hora da emissão e data e hora do
-// atendimento, guichê responsável pelo SA, caso não tenha
-// sido atendida estes últimos campos ficarão em branco.
-// • Relatório do TM, que devido à variação aleatória no
-// atendimento poderá mudar
+  //   O cliente também pede que seja emitido relatório diário
+  // e mensal, contendo:
+  // • Quantitativo geral das senhas emitidas.
+  // • Quantitativo geral das senhas atendidas.
+  // • Quantitativo das senhas emitidas, por prioridade.
+  // • Quantitativo das senhas atendidas, por prioridade.
+  // • Relatório detalhado das senhas contendo, numeração,
+  // tipo de senha, data e hora da emissão e data e hora do
+  // atendimento, guichê responsável pelo SA, caso não tenha
+  // sido atendida estes últimos campos ficarão em branco.
+  // • Relatório do TM, que devido à variação aleatória no
+  // atendimento poderá mudar
 
   constructor() {
   }
@@ -66,13 +74,13 @@ export class SenhasService {
           const senha = new Senhas();
           senha.dataHoraEmissao = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
           senha.prioridade = Prioridades.SG;
-          senha.sequencial = this.senhasGeral.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+          senha.sequencial = this.senhasGeral.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
           senha.numeracaoSenha =
-          new Date().getFullYear().toString().slice(-2) +
-          (new Date().getMonth() + 1).toString().padStart(2, '0') +
-          new Date().getDate().toString().padStart(2, '0') +
-          this.ultSenha +
-          senha.sequencial;
+            new Date().getFullYear().toString().slice(-2) +
+            (new Date().getMonth() + 1).toString().padStart(2, '0') +
+            new Date().getDate().toString().padStart(2, '0') +
+            this.ultSenha +
+            senha.sequencial;
           fila.push(senha);
           localStorage.setItem("fila", JSON.stringify(fila));
           this.salvarSenhaNoLocalStorage('senhaGeral', senha.numeracaoSenha);
@@ -85,13 +93,13 @@ export class SenhasService {
           const senha = new Senhas();
           senha.dataHoraEmissao = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
           senha.prioridade = Prioridades.SP;
-          senha.sequencial = this.senhasPrior.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+          senha.sequencial = this.senhasPrior.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
           senha.numeracaoSenha =
-          new Date().getFullYear().toString().slice(-2) +
-          (new Date().getMonth() + 1).toString().padStart(2, '0') +
-          new Date().getDate().toString().padStart(2, '0') +
-          this.ultSenha +
-          senha.sequencial;
+            new Date().getFullYear().toString().slice(-2) +
+            (new Date().getMonth() + 1).toString().padStart(2, '0') +
+            new Date().getDate().toString().padStart(2, '0') +
+            this.ultSenha +
+            senha.sequencial;
           fila.push(senha);
           localStorage.setItem("fila", JSON.stringify(fila));
           this.salvarSenhaNoLocalStorage('senhaPrioritaria', senha.numeracaoSenha);
@@ -104,13 +112,13 @@ export class SenhasService {
           const senha = new Senhas();
           senha.dataHoraEmissao = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
           senha.prioridade = Prioridades.SE;
-          senha.sequencial = this.senhasExame.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+          senha.sequencial = this.senhasExame.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
           senha.numeracaoSenha =
-          new Date().getFullYear().toString().slice(-2) +
-          (new Date().getMonth() + 1).toString().padStart(2, '0') +
-          new Date().getDate().toString().padStart(2, '0') +
-          this.ultSenha +
-          senha.sequencial;
+            new Date().getFullYear().toString().slice(-2) +
+            (new Date().getMonth() + 1).toString().padStart(2, '0') +
+            new Date().getDate().toString().padStart(2, '0') +
+            this.ultSenha +
+            senha.sequencial;
           fila.push(senha);
           localStorage.setItem("fila", JSON.stringify(fila));
           this.salvarSenhaNoLocalStorage('senhaExame', senha.numeracaoSenha);
@@ -121,6 +129,51 @@ export class SenhasService {
       alert("As senhas só podem ser geradas das 07:00 até às 16:45");
     }
   }
+
+  atenderSenha(atendente: string) {
+    let filaString = localStorage.getItem("fila");
+    let fila = filaString ? JSON.parse(filaString) : [];
+
+    // Verifica se há senhas na fila
+    if (fila.length > 0) {
+      // Itera sobre cada senha na fila até encontrar uma que ainda não foi atendida
+      for (let i = 0; i < fila.length; i++) {
+        let senha = fila[i];
+        if (!senha.statusAtendimento) { // Verifica se a senha não foi atendida
+          senha.dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3'); // Definir data e hora do atendimento
+          senha.statusAtendimento = true; // Definir status de atendimento como verdadeiro
+
+          // Atualizar as contagens de senhas atendidas por tipo
+          switch (senha.prioridade) {
+            case Prioridades.SG:
+              this.senhasAtendidasGeral++;
+              break;
+            case Prioridades.SP:
+              this.senhasAtendidasPrior++;
+              break;
+            case Prioridades.SE:
+              this.senhasAtendidasExame++;
+              break;
+            default:
+              break;
+          }
+
+          // Atualizar a última senha chamada para o atendente correspondente
+          this.ultimasSenhasChamadas[atendente] = senha.numeracaoSenha;
+
+          this.senhasAtendidasTotal++; // Atualizar o total de senhas atendidas
+          break; // Parar o loop após atender uma senha
+        }
+      }
+
+      localStorage.setItem("fila", JSON.stringify(fila)); // Atualizar a fila no armazenamento local
+      return fila; // Retornar a fila atualizada
+    } else {
+      return null; // Se não houver senhas na fila, retornar null
+    }
+  }
+
+
 
   ultimasSenhasAtendidas() {
     let item = localStorage.getItem("fila");
@@ -140,15 +193,13 @@ export class SenhasService {
     return filaUltimosAtendidos;
   }
 
-
-
   mostrarSenha() {
     if (this.ultSenha === "SG") {
-      return "SG" + this.senhasGeral.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+      return "SG" + this.senhasGeral.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
     } else if (this.ultSenha === "SP") {
-      return "SP" + this.senhasPrior.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+      return "SP" + this.senhasPrior.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
     } else {
-      return "SE" + this.senhasExame.toLocaleString('pt-br', {minimumIntegerDigits: 3});
+      return "SE" + this.senhasExame.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
     }
   }
 
@@ -176,10 +227,10 @@ export class SenhasService {
 
   }
 
-    public senhasGeradasSubject: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  public senhasGeradasSubject: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-    atualizarSenhasGeradas(senhas: string[]) {
-      this.senhasGeradas = senhas;
-      this.senhasGeradasSubject.next(senhas);
-    }
+  atualizarSenhasGeradas(senhas: string[]) {
+    this.senhasGeradas = senhas;
+    this.senhasGeradasSubject.next(senhas);
+  }
 }

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SenhasService } from '../services/senhas.service';
 
 @Component({
   selector: 'app-tab2',
@@ -7,6 +8,14 @@ import { Component } from '@angular/core';
 })
 export class Tab2Page {
 
-  constructor() {}
+  constructor(public senhasService: SenhasService) { }
 
+  atenderSenha(atendente: string) {
+    // Chame a função de atender senha do serviço de senhas
+    const senhaAtendida = this.senhasService.atenderSenha(atendente);
+
+    // Faça algo com a senha atendida, se necessário
+    console.log("Senha atendida:", senhaAtendida);
+
+}
 }
