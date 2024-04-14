@@ -1,0 +1,29 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title class="ion-text-center" style="font-size: 30px"> Painel de chamada</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title class="ion-text-center"> Painel</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-list>
+        <ion-item  *ngFor="let senha of senhasService.senhasGeradas.slice(-5).reverse()">
+          <ion-thumbnail slot="start">
+            <img alt="" src="\assets\icon\icon-notification.png" />
+          </ion-thumbnail>
+          <ion-label class="ion-text-center" style="font-size: 20px">
+            {{ senha }}
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
