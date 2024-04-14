@@ -1,3 +1,5 @@
+// tab2.page.ts
+
 import { Component } from '@angular/core';
 import { SenhasService } from '../services/senhas.service';
 
@@ -8,13 +10,13 @@ import { SenhasService } from '../services/senhas.service';
 })
 export class Tab2Page {
   senhaEmAtendimento: string | null = null;
-  atenderHabilitado: boolean = true;
-  confirmarHabilitado: boolean = false;
+  senhaAtendida: any = null;
+  atendimentoConfirmado: boolean = false;
 
   constructor(public senhasService: SenhasService) { }
 
   atenderOuConfirmar(atendente: string) {
-    if (this.senhaEmAtendimento === atendente) {
+    if (this.senhaEmAtendimento !== null && this.senhaEmAtendimento === atendente) {
       this.confirmarAtendimento();
     } else {
       this.atenderSenha(atendente);
@@ -22,34 +24,34 @@ export class Tab2Page {
   }
 
   atenderSenha(atendente: string) {
-    if (this.senhasService.senhasDisponiveis) {
-      this.senhasService.atenderSenha(atendente);
+    const senhaAtendida = this.senhasService.atenderSenha(atendente);
+    if (senhaAtendida) {
       this.senhaEmAtendimento = atendente;
-      this.atualizarEstadoBotoes();
-      console.log("Atendimento iniciado para:", atendente);
+      this.senhaAtendida = senhaAtendida;
+      console.log("Senha gerada em atendimento:", senhaAtendida);
+      this.atendimentoConfirmado = false; // Reseta a confirmação do atendimento
     } else {
-      console.log("Não há mais senhas disponíveis para atendimento.");
+      console.log("Não há senha disponível para", atendente);
     }
   }
 
   confirmarAtendimento() {
-    if (this.senhaEmAtendimento) {
+    if (this.senhaEmAtendimento && !this.atendimentoConfirmado) {
       // Adicione aqui a lógica para confirmar o atendimento
       console.log("Atendimento confirmado para:", this.senhaEmAtendimento);
-      this.senhaEmAtendimento = null; // Reinicializa a variável após confirmar o atendimento
-      this.atualizarEstadoBotoes();
+      this.senhaAtendida.statusAtendimento = 'Senha atendida'; // Altera o status para 'Senha atendida'
+      console.log("Senha atendida:", this.senhaAtendida);
+      this.atendimentoConfirmado = true; // Marca o atendimento como confirmado
     } else {
-      console.log("Não há atendimento para confirmar.");
+      console.log("Não há atendimento para confirmar ou já foi confirmado.");
     }
   }
 
   isAtendendo(atendente: string): boolean {
-    return this.senhaEmAtendimento === atendente;
+    return this.senhaEmAtendimento !== null && this.senhaEmAtendimento === atendente;
   }
 
-  // Função para atualizar o estado dos botões com base na disponibilidade de senhas
-  atualizarEstadoBotoes() {
-    this.atenderHabilitado = !this.senhaEmAtendimento && this.senhasService.senhasDisponiveis;
-    this.confirmarHabilitado = !!this.senhaEmAtendimento;
+  getAtendentesKeys(): string[] {
+    return Object.keys(this.senhasService.atendente);
   }
 }

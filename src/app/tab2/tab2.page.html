@@ -1,3 +1,5 @@
+<!-- tab2.page.html -->
+
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
@@ -6,15 +8,15 @@
   </ion-header>
 
   <ion-list>
-    <ion-item *ngFor="let atendente of senhasService.atendentes">
+    <ion-item *ngFor="let atendente of getAtendentesKeys()">
       <ion-avatar slot="start">
         <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="">
       </ion-avatar>
       <ion-label>{{ atendente }}</ion-label>
-      <ion-button slot="end" (click)="atenderOuConfirmar(atendente)">
+      <ion-button slot="end" *ngIf="!isAtendendo(atendente)" (click)="atenderOuConfirmar(atendente)">
         {{ isAtendendo(atendente) ? 'Confirmar' : 'Atender' }}
       </ion-button>
-      <ion-label *ngIf="senhaEmAtendimento === atendente">Em Atendimento</ion-label>
+      <ion-label *ngIf="isAtendendo(atendente)">Em Atendimento</ion-label>
     </ion-item>
   </ion-list>
 </ion-content>

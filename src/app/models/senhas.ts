@@ -8,4 +8,5 @@ export class Senhas {
   statusAtendimento: boolean = false;
   guiche: number = 0;
   numeracaoSenha!: string;
+  atendente: string | null | undefined;
 }
