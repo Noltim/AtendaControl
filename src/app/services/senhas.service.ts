@@ -54,21 +54,14 @@ export class SenhasService {
     "Leonardo Emanuel Souza dos Santos": 5
   };
 
-  //(FEITO) TODO 1° Criar fila juntando atendimento, guichê e status do atendimento(Atendido(true) ou não atendido(false)). ( FEITO PS N DELETAR AQUI )
-  //TODO 2° Criar tela para o responsável por acionar o sistema para chamar o próximo na fila e efetuar o seu atendimento ao cliente em seu guichê
+
   // TODO 3° Ao  chamar no guiche usar a seguinte logica : [SP] -> [SE|SG] -> [SP] -> [SE|SG]
   // TODO 4° Status do guiche: Em atendimento ou vazio.
-  // TODO 5 ° Tela para exibir o número a ser chamado, onde também é informado para qual guichê se dirigir (logica do item 4 aplicada -> Em atendimento ou Aguardando)
-  //(Requisito TODO 4°) TODO 6º Criar logica para finalizar atendimento enviar para fila com status: atendido ou não compareceu
   //(REQUISITO TODO 1° para começar) TODO 7° Criar relatorio com base nas filas criadas
 
 
   //   O cliente também pede que seja emitido relatório diário
   // e mensal, contendo:
-  // • Quantitativo geral das senhas emitidas.
-  // • Quantitativo geral das senhas atendidas.
-  // • Quantitativo das senhas emitidas, por prioridade.
-  // • Quantitativo das senhas atendidas, por prioridade.
   // • Relatório detalhado das senhas contendo, numeração,
   // tipo de senha, data e hora da emissão e data e hora do
   // atendimento, guichê responsável pelo SA, caso não tenha
