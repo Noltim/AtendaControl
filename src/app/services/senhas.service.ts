@@ -196,33 +196,6 @@ export class SenhasService {
     this.senhasTotal++;
   }
 
-  private criarSenha(prioridade: Prioridades): Senhas {
-    const senha = new Senhas();
-    senha.dataHoraEmissao = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
-    senha.prioridade = prioridade;
-    senha.sequencial = this.obterSequencial(prioridade).toLocaleString('pt-br', { minimumIntegerDigits: 3 });
-    senha.numeracaoSenha =
-      new Date().getFullYear().toString().slice(-2) +
-      (new Date().getMonth() + 1).toString().padStart(2, '0') +
-      new Date().getDate().toString().padStart(2, '0') +
-      this.ultSenha +
-      senha.sequencial;
-    return senha;
-  }
-
-  private obterSequencial(prioridade: Prioridades): number {
-    switch (prioridade) {
-      case Prioridades.SG:
-        return this.senhasGeral;
-      case Prioridades.SP:
-        return this.senhasPrior;
-      case Prioridades.SE:
-        return this.senhasExame;
-      default:
-        return 0;
-    }
-  }
-
   private salvarSenhaNoLocalStorage(chave: string, ultSenha: string) {
     localStorage.setItem(chave, ultSenha);
     localStorage.setItem('ultimaGerada', ultSenha);
