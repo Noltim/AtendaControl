@@ -4,7 +4,7 @@ import { Prioridades } from '../models/prioridades';
 import { formatDate } from '@angular/common';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 registerLocaleData(localePt);
 
@@ -12,6 +12,7 @@ registerLocaleData(localePt);
   providedIn: 'root',
 })
 export class SenhasService {
+  [x: string]: any;
   public senhasGeral: number = localStorage.getItem('senhaGeral')
     ? parseInt(localStorage.getItem('senhaGeral')!.slice(-3))
     : 0;
@@ -22,9 +23,9 @@ export class SenhasService {
     ? parseInt(localStorage.getItem('senhaExame')!.slice(-3))
     : 0;
   public atendidosStorage: Senhas[] = localStorage.getItem('Atendidos') !== null ? JSON.parse(localStorage.getItem('Atendidos')!)
-  : [];
+    : [];
   public listAtendidos: string[] = localStorage.getItem('listAtendidos') !== null ? JSON.parse(localStorage.getItem('listAtendidos')!)
-  : [];
+    : [];
 
   public ultimaGerada: string =
     localStorage.getItem('ultimaGerada') !== null
@@ -38,11 +39,18 @@ export class SenhasService {
       ? JSON.parse(localStorage.getItem('senhasGeradas')!)
       : [];
 
+
+  private proximaPrioridade: Prioridades = Prioridades.SP; // Inicia com SP como próxima prioridade
+
   // Variáveis para contar as senhas atendidas por tipo
   public senhasAtendidasTotal: number = 0;
   public senhasAtendidasGeral: number = 0;
   public senhasAtendidasPrior: number = 0;
   public senhasAtendidasExame: number = 0;
+
+
+  private senhasDisponiveisSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public senhasDisponiveis$: Observable<boolean> = this.senhasDisponiveisSubject.asObservable();
 
   public ultimasSenhasChamadas: { [key: string]: string } = {}; // Variável para armazenar a última senha chamada por cada atendente
 
@@ -58,7 +66,7 @@ export class SenhasService {
   // TODO 3° Ao  chamar no guiche usar a seguinte logica : [SP] -> [SE|SG] -> [SP] -> [SE|SG]
   // TODO 4° Status do guiche: Em atendimento ou vazio.
 
-  constructor() {}
+  constructor() { }
 
   verificarHorario(): boolean {
     //DESCOMENTAR PARA ATIVAR VERIFICAÇÃO DE TEMPO ( REQUISITO)
@@ -66,6 +74,26 @@ export class SenhasService {
     return true;
   }
 
+
+
+/*
+  continuarAtendimento(senha: Senhas, atendente: string) { // Modificação do método para aceitar um objeto Senhas e uma string de atendente
+    let filaString = localStorage.getItem("fila");
+    let fila = filaString ? JSON.parse(filaString) : [];
+
+    for (let i = 0; i < fila.length; i++) {
+      if (fila[i].numeracaoSenha === senha.numeracaoSenha) { // Verifica se a senha na fila corresponde à senha a ser confirmada
+        // Lógica para confirmar o atendimento
+        // Por exemplo:
+        fila[i].statusAtendimento = true;
+        fila[i].dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
+        fila[i].guiche = this.atendente[atendente]; // Define o guichê para o atendente
+        localStorage.setItem("fila", JSON.stringify(fila)); // Atualiza a fila no armazenamento local
+        return;
+      }
+    }
+  }
+*/
   gerarSenha(prioridade: string) {
     let filaString = localStorage.getItem('fila');
     let fila = filaString ? JSON.parse(filaString) : [];
@@ -159,66 +187,63 @@ export class SenhasService {
   }
 
 
-  atenderSenha(atendente : string) {
-    let filaString = localStorage.getItem('fila');
+  atenderSenha(atendente: string) {
+    let filaString = localStorage.getItem("fila");
     let fila = filaString ? JSON.parse(filaString) : [];
-    let atendidosString = localStorage.getItem('Atendidos');
+    let atendidosString = localStorage.getItem("Atendidos");
     let atendidos = atendidosString ? JSON.parse(atendidosString) : [];
-    let listAtendidosStorege = localStorage.getItem('listAtendidos');
+    let listAtendidosStorege = localStorage.getItem("listAtendidos");
     let listStorege = listAtendidosStorege ? JSON.parse(listAtendidosStorege) : [];
 
     if (fila.length > 0) {
-
       for (let i = 0; i < fila.length; i++) {
-        let senha = fila[i];
-        if (!senha.statusAtendimento) {
-          senha.dataHoraAtendimento = formatDate(
-            new Date(),
-            'dd-MM-yyyy HH:mm:ss',
-            'pt-BR',
-            '3'
-          );
+        let senhaAtender = fila[i];
+        let senhaPrioritaria = fila.find((senha: any) => !senha.statusAtendimento && senha.prioridade === Prioridades.SP);
 
+        if (!senhaPrioritaria) {
+          senhaAtender = fila.find((senha: any) => !senha.statusAtendimento && (senha.prioridade === Prioridades.SE || senha.prioridade === Prioridades.SG));
+        } else {
+          senhaAtender = senhaPrioritaria;
+        }
 
-          senha.tempoAtendimento =  calcularHora(senha.dataHoraEmissao,senha.dataHoraAtendimento);
-          senha.statusAtendimento = true;
+        if (senhaAtender) {
+          senhaAtender.dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
+          senhaAtender.guiche = this.atendente[atendente];
+          senhaAtender.tempoAtendimento = calcularHora(senhaAtender.dataHoraEmissao, senhaAtender.dataHoraAtendimento);
+          senhaAtender.statusAtendimento = false; // Definindo o status como false ao atender a senha
 
-          switch (senha.prioridade) {
-            case Prioridades.SG:
-              this.senhasAtendidasGeral++;
-              break;
+          switch (senhaAtender.prioridade) {
             case Prioridades.SP:
-              this.senhasAtendidasPrior++;
+              this.senhasPrior++;
+              break;
+            case Prioridades.SG:
+              this.senhasGeral++;
               break;
             case Prioridades.SE:
-              this.senhasAtendidasExame++;
+              this.senhasExame++;
               break;
             default:
               break;
           }
 
+          this.ultimasSenhasChamadas[atendente] = senhaAtender.numeracaoSenha;
 
-          this.ultimasSenhasChamadas[atendente] = senha.numeracaoSenha;
+          this.senhasTotal++;
 
-          this.senhasAtendidasTotal++;
+          atendidos.push(senhaAtender);
+          this.atendidosStorage.push(senhaAtender);
 
-          senha.guiche = this.atendente[atendente];
+          listStorege.push(senhaAtender.numeracaoSenha);
+          this.listAtendidos.push(senhaAtender.numeracaoSenha);
 
-          atendidos.push(senha)
-          this.atendidosStorage.push(senha)
+          localStorage.setItem("Atendidos", JSON.stringify(atendidos));
+          localStorage.setItem("listAtendidos", JSON.stringify(listStorege));
 
-          listStorege.push(senha.numeracaoSenha)
-          this.listAtendidos.push(senha.numeracaoSenha)
-
-          localStorage.setItem('Atendidos', JSON.stringify(atendidos))
-          localStorage.setItem('listAtendidos', JSON.stringify(listStorege))
-
-          fila.splice(i, 1);
+          fila.splice(fila.indexOf(senhaAtender), 1);
           localStorage.setItem("fila", JSON.stringify(fila));
+          this.definirProximaPrioridade();
 
-
-
-          return fila;
+          return senhaAtender;
         }
       }
     }
@@ -226,6 +251,33 @@ export class SenhasService {
     return null;
   }
 
+  continuarAtendimento(atendente: string) {
+    let filaString = localStorage.getItem("fila");
+    let fila = filaString ? JSON.parse(filaString) : [];
+
+    // Aqui você deve encontrar a senha que está sendo atendida pelo atendente atual
+    let senhaEmAtendimento = fila.find((senha: any) => senha.guiche === this.atendente[atendente] && !senha.statusAtendimento);
+    if (senhaEmAtendimento) {
+      senhaEmAtendimento.statusAtendimento = true; // Definindo o status como true ao finalizar o atendimento
+
+      localStorage.setItem("fila", JSON.stringify(fila));
+      console.log("Atendimento confirmado para:", atendente);
+      console.log("Senha atendida:", senhaEmAtendimento);
+
+      return senhaEmAtendimento;
+    } else {
+      console.log("Não há atendimento para confirmar.");
+      return null;
+    }
+  }
+
+  private definirProximaPrioridade() {
+    if (this.proximaPrioridade === Prioridades.SP) {
+      this.proximaPrioridade = Math.random() < 0.5 ? Prioridades.SG : Prioridades.SE; // Escolhe aleatoriamente entre SG e SE
+    } else {
+      this.proximaPrioridade = Prioridades.SP; // Retorna para SP
+    }
+  }
 
   ultimasSenhasAtendidas() {
     let item = localStorage.getItem('Atendidos');
