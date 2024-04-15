@@ -57,17 +57,6 @@ export class SenhasService {
 
   // TODO 3° Ao  chamar no guiche usar a seguinte logica : [SP] -> [SE|SG] -> [SP] -> [SE|SG]
   // TODO 4° Status do guiche: Em atendimento ou vazio.
-  //(REQUISITO TODO 1° para começar) TODO 7° Criar relatorio com base nas filas criadas
-
-
-  //   O cliente também pede que seja emitido relatório diário
-  // e mensal, contendo:
-  // • Relatório detalhado das senhas contendo, numeração,
-  // tipo de senha, data e hora da emissão e data e hora do
-  // atendimento, guichê responsável pelo SA, caso não tenha
-  // sido atendida estes últimos campos ficarão em branco.
-  // • Relatório do TM, que devido à variação aleatória no
-  // atendimento poderá mudar
 
   constructor() {}
 
@@ -189,6 +178,9 @@ export class SenhasService {
             'pt-BR',
             '3'
           );
+
+
+          senha.tempoAtendimento =  calcularHora(senha.dataHoraEmissao,senha.dataHoraAtendimento);
           senha.statusAtendimento = true;
 
           switch (senha.prioridade) {
@@ -249,7 +241,6 @@ export class SenhasService {
         break;
       }
     }
-    console.log(filaUltimosAtendidos); //FICANDO VAZIO
     return filaUltimosAtendidos;
   }
 
@@ -303,4 +294,44 @@ export class SenhasService {
     this.senhasGeradas = senhas;
     this.senhasGeradasSubject.next(senhas);
   }
+
 }
+
+function calcularHora(emissao: string, atendimento: string): string {
+  const stringHoraEmissao = emissao.slice(8);
+  const partesHoraEmissao = stringHoraEmissao.split(':');
+
+  const horaEmissao = new Date();
+  horaEmissao.setHours(parseInt(partesHoraEmissao[0], 10));
+  horaEmissao.setMinutes(parseInt(partesHoraEmissao[1], 10));
+  horaEmissao.setSeconds(parseInt(partesHoraEmissao[2], 10));
+
+  const stringHoraAtendimento = atendimento.slice(8);
+  const partesHoraAtendimento = stringHoraAtendimento.split(':');
+
+  const horaAtendimento = new Date();
+  horaAtendimento.setHours(parseInt(partesHoraAtendimento[0], 10));
+  horaAtendimento.setMinutes(parseInt(partesHoraAtendimento[1], 10));
+  horaAtendimento.setSeconds(parseInt(partesHoraAtendimento[2], 10));
+
+  const diferencaMilissegundos = horaAtendimento.getTime() - horaEmissao.getTime();
+
+  const horas = Math.floor(diferencaMilissegundos / (1000 * 60 * 60));
+  const minutos = Math.floor((diferencaMilissegundos % (1000 * 60 * 60)) / (1000 * 60));
+  const segundos = Math.floor((diferencaMilissegundos % (1000 * 60)) / 1000);
+
+  const diferencaFormatada = `${pad(horas)}:${pad(minutos)}:${pad(segundos)}`;
+
+  return diferencaFormatada;
+}
+
+function pad(n: number): string {
+  return n < 10 ? '0' + n : n.toString();
+}
+
+
+
+
+
+
+
