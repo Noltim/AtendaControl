@@ -1,28 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SenhasService } from '../services/senhas.service';
 import { Subscription } from 'rxjs';
+import { Senhas } from '../models/senhas';
 
 @Component({
   selector: 'app-tab4',
   templateUrl: 'tab4.page.html',
   styleUrls: ['tab4.page.scss']
 })
-export class Tab4Page implements OnInit {
-  ultimasSenhas: string[] = [];
+export class Tab4Page implements OnInit, OnDestroy {
+  ultimasSenhas: Senhas[] = [];
   senhasSubscription: Subscription = new Subscription();
 
   constructor(public senhasService: SenhasService) {}
 
   ngOnInit() {
-    // Subscrever ao BehaviorSubject para receber atualizações
-    this.senhasSubscription = this.senhasService.senhasGeradasSubject.subscribe((senhas: string[]) => {
-      // Atualizar a variável ultimasSenhas com as novas senhas geradas
-      this.ultimasSenhas = senhas.slice(-5).reverse(); // Exibir as últimas 5 senhas
-    });
+
+    if (this.senhasService.atendidosStorage.length > 0) {
+      this.ultimasSenhas = this.senhasService.atendidosStorage.slice(-5).reverse();
+    } else {
+      console.log("Não há itens na lista para exibir.");
+    }
   }
 
   ngOnDestroy() {
-    // Cancelar a inscrição para evitar vazamentos de memória
     this.senhasSubscription.unsubscribe();
   }
 }

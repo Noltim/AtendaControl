@@ -1,5 +1,3 @@
-// tab2.page.ts
-
 import { Component } from '@angular/core';
 import { SenhasService } from '../services/senhas.service';
 import { Senhas } from '../models/senhas';
@@ -11,7 +9,6 @@ import { Senhas } from '../models/senhas';
 })
 export class Tab2Page {
   senhaEmAtendimento: Senhas | null = null;
-  senhaAtendida: any;
 
   constructor(public senhasService: SenhasService) { }
 
@@ -50,8 +47,6 @@ export class Tab2Page {
       console.log("Não há atendimento para confirmar.");
     }
   }
-
-
 
   isAtendendo(atendente: string): boolean {
     return this.senhaEmAtendimento !== null && this.senhaEmAtendimento.guiche === this.senhasService.atendente[atendente];
