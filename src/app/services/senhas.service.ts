@@ -18,6 +18,7 @@ export class SenhasService {
     "Leonardo Emanuel Souza dos Santos": 5
   };
 
+  private proximaPrioridade: Prioridades = Prioridades.SP; // Inicia com SP como próxima prioridade
   public senhasGeral: number = localStorage.getItem('senhaGeral') !== null ? parseInt(localStorage.getItem('senhaGeral')!) : 0;
   public senhasPrior: number = localStorage.getItem('senhaPrioritaria') !== null ? parseInt(localStorage.getItem('senhaPrioritaria')!) : 0;
   public senhasExame: number = localStorage.getItem('senhaExame') !== null ? parseInt(localStorage.getItem('senhaExame')!) : 0;
@@ -41,7 +42,6 @@ export class SenhasService {
     this.senhasDisponiveis = this.verificarSenhasDisponiveis();
   }
 
-
   private verificarSenhasDisponiveis(): boolean {
     // Verifica se há senhas na fila não atendidas
     let filaString = localStorage.getItem("fila");
@@ -49,12 +49,30 @@ export class SenhasService {
     return fila.some((senha: Senhas) => !senha.statusAtendimento);
   }
 
-  gerarSenha(prioridade: string) {
-    console.log("Iniciando geração de senha...");
-    
+  confirmarAtendimento(senha: Senhas, atendente: string) { // Modificação do método para aceitar um objeto Senhas e uma string de atendente
     let filaString = localStorage.getItem("fila");
     let fila = filaString ? JSON.parse(filaString) : [];
-  
+
+    for (let i = 0; i < fila.length; i++) {
+      if (fila[i].numeracaoSenha === senha.numeracaoSenha) { // Verifica se a senha na fila corresponde à senha a ser confirmada
+        // Lógica para confirmar o atendimento
+        // Por exemplo:
+        fila[i].statusAtendimento = true;
+        fila[i].dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
+        fila[i].guiche = this.atendente[atendente]; // Define o guichê para o atendente
+        localStorage.setItem("fila", JSON.stringify(fila)); // Atualiza a fila no armazenamento local
+        return;
+      }
+    }
+  }
+
+
+  gerarSenha(prioridade: string) {
+    console.log("Iniciando geração de senha...");
+
+    let filaString = localStorage.getItem("fila");
+    let fila = filaString ? JSON.parse(filaString) : [];
+
     if (this.verificarHorario()) {
       switch (prioridade) {
         case "SG": {
@@ -63,33 +81,30 @@ export class SenhasService {
           this.ultSenha = "SG";
           const senha = this.criarSenha(Prioridades.SG);
           fila.push(senha);
-          console.log("Senha gerada:", senha);
           localStorage.setItem("fila", JSON.stringify(fila));
           this.salvarSenhaNoLocalStorage('senhaGeral', senha.numeracaoSenha);
           break;
         }
-  
+
         case "SP": {
           console.log("Gerando senha prioritária SP...");
           this.somaPrior();
           this.ultSenha = "SP";
           const senha = this.criarSenha(Prioridades.SP);
           fila.push(senha);
-          console.log("Senha gerada:", senha);
           localStorage.setItem("fila", JSON.stringify(fila));
           this.salvarSenhaNoLocalStorage('senhaPrioritaria', senha.numeracaoSenha);
           break;
         }
-  
+
         case "SE": {
           console.log("Gerando senha prioritária SE...");
           this.somaExame();
           this.ultSenha = "SE";
           const senha = this.criarSenha(Prioridades.SE);
           fila.push(senha);
-          console.log("Senha gerada:", senha);
           localStorage.setItem("fila", JSON.stringify(fila));
-          console.log(this.salvarSenhaNoLocalStorage('senhaExame', senha.numeracaoSenha));
+          this.salvarSenhaNoLocalStorage('senhaExame', senha.numeracaoSenha);
           break;
         }
       }
@@ -97,76 +112,6 @@ export class SenhasService {
       console.log("Fora do horário de atendimento para geração de senhas.");
       alert("As senhas só podem ser geradas das 07:00 até às 16:45");
     }
-  }
-  
-  atenderSenha(atendente: string) {
-    let filaString = localStorage.getItem("fila");
-    let fila = filaString ? JSON.parse(filaString) : [];
-  
-    // Verifica se há senhas na fila
-    if (fila.length > 0) {
-      // Itera sobre cada senha na fila até encontrar uma que ainda não foi atendida
-      for (let i = 0; i < fila.length; i++) {
-        let senha = fila[i];
-        if (!senha.statusAtendimento) { // Verifica se a senha não foi atendida
-          senha.dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3'); // Define data e hora do atendimento
-          senha.statusAtendimento = true; // Define status de atendimento como verdadeiro
-          senha.guiche = this.atendente[atendente]; // Atribui o guichê correspondente ao atendente
-  
-          // Atualizar as contagens de senhas atendidas por tipo
-          switch (senha.prioridade) {
-            case Prioridades.SG:
-              this.senhasAtendidasGeral++;
-              break;
-            case Prioridades.SP:
-              this.senhasAtendidasPrior++;
-              break;
-            case Prioridades.SE:
-              this.senhasAtendidasExame++;
-              break;
-            default:
-              break;
-          }
-  
-          // Atualizar a última senha chamada para o atendente correspondente
-          this.ultimasSenhasChamadas[atendente] = senha.numeracaoSenha;
-  
-          this.senhasAtendidasTotal++; // Atualizar o total de senhas atendidas
-  
-          localStorage.setItem("fila", JSON.stringify(fila)); // Atualizar a fila no armazenamento local
-          return senha; // Retornar a senha atendida
-        }
-      }
-    }
-  
-    return null; // Se não houver senhas na fila ou todas foram atendidas, retornar null
-  }
-
-
-  
-  
-  
-
-  ultimasSenhasAtendidas(): Senhas[] {
-    let item = localStorage.getItem("fila");
-    let filaRecuperada = item ? JSON.parse(item) : [];
-    let filaUltimosAtendidos: Senhas[] = [];
-
-    for (let i = filaRecuperada.length - 1; i >= 0; i--) {
-      if (filaRecuperada[i].statusAtendimento) {
-        filaUltimosAtendidos.push(filaRecuperada[i]);
-      }
-
-      if (filaUltimosAtendidos.length >= 5) {
-        break;
-      }
-    }
-
-    return filaUltimosAtendidos.reverse();
-  }
-
-  mostrarSenha(): string {
-    return this.ultSenha + this.senhasTotal.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
   }
 
   private somaGeral(): void {
@@ -234,4 +179,76 @@ export class SenhasService {
     return hour >= 7 && (hour < 16 || (hour === 16 && minute <= 45));
   }
 
+  atenderSenha(atendente: string) {
+    let filaString = localStorage.getItem("fila");
+    let fila = filaString ? JSON.parse(filaString) : [];
+
+    for (let i = 0; i < fila.length; i++) {
+      let senha = fila[i];
+      if (!senha.statusAtendimento && senha.prioridade === this.proximaPrioridade) { // Verifica se a senha não foi atendida e tem a prioridade correta
+        senha.dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
+        senha.statusAtendimento = true;
+        senha.guiche = this.atendente[atendente];
+
+        // Atualiza as contagens de senhas atendidas por tipo
+        switch (senha.prioridade) {
+          case Prioridades.SP:
+            this.senhasAtendidasPrior++;
+            break;
+          case Prioridades.SG:
+            this.senhasAtendidasGeral++;
+            break;
+          case Prioridades.SE:
+            this.senhasAtendidasExame++;
+            break;
+          default:
+            break;
+        }
+
+        // Atualiza a última senha chamada para o atendente correspondente
+        this.ultimasSenhasChamadas[atendente] = senha.numeracaoSenha;
+
+        this.senhasAtendidasTotal++;
+
+        localStorage.setItem("fila", JSON.stringify(fila));
+        this.definirProximaPrioridade(); // Define a próxima prioridade a ser atendida
+
+        return senha;
+      }
+    }
+
+    return null;
+  }
+  private definirProximaPrioridade() {
+    if (this.proximaPrioridade === Prioridades.SP) {
+      this.proximaPrioridade = Math.random() < 0.5 ? Prioridades.SG : Prioridades.SE; // Escolhe aleatoriamente entre SG e SE
+    } else {
+      this.proximaPrioridade = Prioridades.SP; // Retorna para SP
+    }
+  }
+
+
+
+
+  ultimasSenhasAtendidas(): Senhas[] {
+    let item = localStorage.getItem("fila");
+    let filaRecuperada = item ? JSON.parse(item) : [];
+    let filaUltimosAtendidos: Senhas[] = [];
+
+    for (let i = filaRecuperada.length - 1; i >= 0; i--) {
+      if (filaRecuperada[i].statusAtendimento) {
+        filaUltimosAtendidos.push(filaRecuperada[i]);
+      }
+
+      if (filaUltimosAtendidos.length >= 5) {
+        break;
+      }
+    }
+
+    return filaUltimosAtendidos.reverse();
+  }
+
+  mostrarSenha(): string {
+    return this.ultSenha + this.senhasTotal.toLocaleString('pt-br', { minimumIntegerDigits: 3 });
+  }
 }

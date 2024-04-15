@@ -2,6 +2,7 @@
 
 import { Component } from '@angular/core';
 import { SenhasService } from '../services/senhas.service';
+import { Senhas } from '../models/senhas';
 
 @Component({
   selector: 'app-tab2',
@@ -9,15 +10,14 @@ import { SenhasService } from '../services/senhas.service';
   styleUrls: ['tab2.page.scss']
 })
 export class Tab2Page {
-  senhaEmAtendimento: string | null = null;
-  senhaAtendida: any = null;
-  atendimentoConfirmado: boolean = false;
+  senhaEmAtendimento: Senhas | null = null;
+  senhaAtendida: any;
 
   constructor(public senhasService: SenhasService) { }
 
   atenderOuConfirmar(atendente: string) {
-    if (this.senhaEmAtendimento !== null && this.senhaEmAtendimento === atendente) {
-      this.confirmarAtendimento();
+    if (this.senhaEmAtendimento !== null && this.senhaEmAtendimento.guiche === this.senhasService.atendente[atendente]) {
+      this.confirmarAtendimento(atendente); // Chama a função confirmarAtendimento passando o atendente
     } else {
       this.atenderSenha(atendente);
     }
@@ -26,29 +26,35 @@ export class Tab2Page {
   atenderSenha(atendente: string) {
     const senhaAtendida = this.senhasService.atenderSenha(atendente);
     if (senhaAtendida) {
-      this.senhaEmAtendimento = atendente;
-      this.senhaAtendida = senhaAtendida;
-      console.log("Senha gerada em atendimento:", senhaAtendida);
-      this.atendimentoConfirmado = false; // Reseta a confirmação do atendimento
+      this.senhaEmAtendimento = senhaAtendida;
+      console.log("Senha em atendimento:", senhaAtendida);
+      // Verifica se this.senhaEmAtendimento não é nulo antes de acessar suas propriedades
+      if (this.senhaEmAtendimento) {
+        this.senhaEmAtendimento.statusAtendimento = false;
+      }
     } else {
       console.log("Não há senha disponível para", atendente);
     }
   }
-
-  confirmarAtendimento() {
-    if (this.senhaEmAtendimento && !this.atendimentoConfirmado) {
-      // Adicione aqui a lógica para confirmar o atendimento
-      console.log("Atendimento confirmado para:", this.senhaEmAtendimento);
-      this.senhaAtendida.statusAtendimento = 'Senha atendida'; // Altera o status para 'Senha atendida'
-      console.log("Senha atendida:", this.senhaAtendida);
-      this.atendimentoConfirmado = true; // Marca o atendimento como confirmado
+  
+  confirmarAtendimento(atendente: string) {
+    if (this.senhaEmAtendimento) {
+      this.senhasService.confirmarAtendimento(this.senhaEmAtendimento, atendente);
+      console.log("Atendimento confirmado para:", atendente);
+      // Verifica se this.senhaEmAtendimento não é nulo antes de acessar suas propriedades
+      if (this.senhaEmAtendimento) {
+        this.senhaEmAtendimento.statusAtendimento = true;
+        console.log("Senha atendida:", this.senhaEmAtendimento);
+      }
     } else {
-      console.log("Não há atendimento para confirmar ou já foi confirmado.");
+      console.log("Não há atendimento para confirmar.");
     }
   }
+  
+  
 
   isAtendendo(atendente: string): boolean {
-    return this.senhaEmAtendimento !== null && this.senhaEmAtendimento === atendente;
+    return this.senhaEmAtendimento !== null && this.senhaEmAtendimento.guiche === this.senhasService.atendente[atendente];
   }
 
   getAtendentesKeys(): string[] {
