@@ -5,13 +5,13 @@
         <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="">
       </ion-avatar>
       <ion-label>{{ atendente }}</ion-label>
-      <ion-button slot="end" *ngIf="isAtendendo(atendente) && !atendimentoConfirmado" (click)="confirmarAtendimento()">
+      <ion-button slot="end" *ngIf="isAtendendo(atendente) && senhaEmAtendimento && !senhaEmAtendimento.statusAtendimento" (click)="confirmarAtendimento(atendente)">
         Confirmar
       </ion-button>
       <ion-button slot="end" *ngIf="!isAtendendo(atendente)" (click)="atenderOuConfirmar(atendente)">
         {{ isAtendendo(atendente) ? 'Em Atendimento' : 'Atender' }}
       </ion-button>
-      <ion-label *ngIf="isAtendendo(atendente)">Em Atendimentooo</ion-label>
+      <ion-label *ngIf="isAtendendo(atendente)">Em Atendimento</ion-label>
     </ion-item>
   </ion-list>
 </ion-content>

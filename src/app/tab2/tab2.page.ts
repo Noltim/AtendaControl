@@ -28,7 +28,7 @@ export class Tab2Page {
     if (senhaAtendida) {
       this.senhaEmAtendimento = senhaAtendida;
       console.log("Senha em atendimento:", senhaAtendida);
-      // Verifica se this.senhaEmAtendimento não é nulo antes de acessar suas propriedades
+    //  Verifica se this.senhaEmAtendimento não é nulo antes de acessar suas propriedades
       if (this.senhaEmAtendimento) {
         this.senhaEmAtendimento.statusAtendimento = false;
       }
@@ -36,7 +36,7 @@ export class Tab2Page {
       console.log("Não há senha disponível para", atendente);
     }
   }
-  
+
   confirmarAtendimento(atendente: string) {
     if (this.senhaEmAtendimento) {
       this.senhasService.confirmarAtendimento(this.senhaEmAtendimento, atendente);
@@ -50,8 +50,8 @@ export class Tab2Page {
       console.log("Não há atendimento para confirmar.");
     }
   }
-  
-  
+
+
 
   isAtendendo(atendente: string): boolean {
     return this.senhaEmAtendimento !== null && this.senhaEmAtendimento.guiche === this.senhasService.atendente[atendente];

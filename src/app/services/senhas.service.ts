@@ -19,9 +19,10 @@ export class SenhasService {
   };
 
   private proximaPrioridade: Prioridades = Prioridades.SP; // Inicia com SP como próxima prioridade
-  public senhasGeral: number = localStorage.getItem('senhaGeral') !== null ? parseInt(localStorage.getItem('senhaGeral')!) : 0;
-  public senhasPrior: number = localStorage.getItem('senhaPrioritaria') !== null ? parseInt(localStorage.getItem('senhaPrioritaria')!) : 0;
-  public senhasExame: number = localStorage.getItem('senhaExame') !== null ? parseInt(localStorage.getItem('senhaExame')!) : 0;
+  public senhasGeral: number = localStorage.getItem('senhaGeral') ? parseInt(localStorage.getItem('senhaGeral')!.slice(-3)) : 0;
+  public senhasPrior: number = localStorage.getItem('senhaPrioritaria') ? parseInt(localStorage.getItem('senhaPrioritaria')!.slice(-3)) : 0;
+  public senhasExame: number = localStorage.getItem('senhaExame') ? parseInt(localStorage.getItem('senhaExame')!.slice(-3)) : 0;
+
   public ultimaGerada: string = localStorage.getItem('ultimaGerada') !== null ? localStorage.getItem('ultimaGerada')! : '';
   public senhasTotal: number = this.senhasGeral + this.senhasPrior + this.senhasExame;
   public ultSenha: string = "SG";
@@ -187,7 +188,7 @@ export class SenhasService {
       let senha = fila[i];
       if (!senha.statusAtendimento && senha.prioridade === this.proximaPrioridade) { // Verifica se a senha não foi atendida e tem a prioridade correta
         senha.dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
-        senha.statusAtendimento = true;
+       // senha.statusAtendimento = true;
         senha.guiche = this.atendente[atendente];
 
         // Atualiza as contagens de senhas atendidas por tipo
@@ -215,6 +216,36 @@ export class SenhasService {
 
         return senha;
       }
+      //else{
+    //   senha.dataHoraAtendimento = formatDate(new Date(), 'dd-MM-yyyy HH:mm:ss', 'pt-BR', '3');
+    //   senha.statusAtendimento = true;
+    //   senha.guiche = this.atendente[atendente];
+
+    //   // Atualiza as contagens de senhas atendidas por tipo
+    //   switch (senha.prioridade) {
+    //     case Prioridades.SP:
+    //       this.senhasAtendidasPrior++;
+    //       break;
+    //     case Prioridades.SG:
+    //       this.senhasAtendidasGeral++;
+    //       break;
+    //     case Prioridades.SE:
+    //       this.senhasAtendidasExame++;
+    //       break;
+    //     default:
+    //       break;
+    //   }
+
+    //   // Atualiza a última senha chamada para o atendente correspondente
+    //   this.ultimasSenhasChamadas[atendente] = senha.numeracaoSenha;
+
+    //   this.senhasAtendidasTotal++;
+
+    //   localStorage.setItem("fila", JSON.stringify(fila));
+    //   this.definirProximaPrioridade(); // Define a próxima prioridade a ser atendida
+
+    //   return senha;
+    // }
     }
 
     return null;
